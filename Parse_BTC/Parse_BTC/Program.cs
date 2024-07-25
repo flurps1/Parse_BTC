@@ -15,40 +15,25 @@ namespace parse
         {
             string apiUrl = "https://api.blockcypher.com/v1/btc/main";
 
-            HttpClient client = new HttpClient();
+            var client = new HttpClient();
             var response = await client.GetStringAsync(apiUrl);
 
-            JObject blockchainInfo = JObject.Parse(response);
+            var blockchainInfo = JObject.Parse(response);
 
-            // Получение URL последнего блока
-            string latestBlockUrl = blockchainInfo["latest_url"].ToString();
+            var latestBlockUrl = blockchainInfo["latest_url"]?.ToString();
 
-            // Запрос информации о последнем блоке
             var blockResponse = await client.GetStringAsync(latestBlockUrl);
-            JObject block = JObject.Parse(blockResponse);
+            var block = JObject.Parse(blockResponse);
 
-            // Получение данных блока
             var blockData = new
             {
-                Hash = block["hash"].ToString(),
-                Height = block["height"].ToString(),
-                Time = block["time"].ToString(),
-                PrevBlock = block["prev_block"].ToString(),
-                MerkleRoot = block["mrkl_root"].ToString(),
-                TxCount = block["n_tx"].ToString()
-            };
+                Hash = block["hash"]?.ToString() ?? "N/A",
+                Height = block["height"]?.ToString() ?? "N/A",
+                Time = block["time"]?.ToString() ?? "N/A",
+                PrevBlock = block["prev_block"]?.ToString() ?? "N/A",
+                MerkleRoot = block["mrkl_root"]?.ToString() ?? "N/A",
+                TxCount = block["n_tx"]?.ToString() ?? "N/A"            };
 
-            // Вывод данных блока в консоль
-            Console.WriteLine("Данные блока:");
-            Console.WriteLine($"Хэш: {blockData.Hash}");
-            Console.WriteLine($"Высота: {blockData.Height}");
-            Console.WriteLine($"Время: {blockData.Time}");
-            Console.WriteLine($"Предыдущий блок: {blockData.PrevBlock}");
-            Console.WriteLine($"Корень Меркла: {blockData.MerkleRoot}");
-            Console.WriteLine($"Количество транзакций: {blockData.TxCount}");
-            Console.WriteLine();
-
-            // Список транзакций
             var transactions = new List<dynamic>();
             foreach (var txid in block["txids"])
             {
@@ -58,27 +43,16 @@ namespace parse
                 });
             }
 
-            // Вывод транзакций в консоль
-            Console.WriteLine("Транзакции:");
-            foreach (var tx in transactions)
+            await using (var writer = new StreamWriter("block_data.csv"))
+            await using (var csv = new CsvHelper.CsvWriter(writer, CultureInfo.InvariantCulture))
             {
-                Console.WriteLine($"TxHash: {tx.TxHash}");
-            }
-
-            // Сохранение данных в CSV
-            using (var writer = new StreamWriter("block_data.csv"))
-            using (var csv = new CsvHelper.CsvWriter(writer, CultureInfo.InvariantCulture))
-            {
-                // Записываем данные блока
                 csv.WriteRecord(blockData);
-                csv.NextRecord();
+                await csv.NextRecordAsync();
                 
-                // Записываем заголовки транзакций
                 csv.WriteHeader<dynamic>();
-                csv.NextRecord();
+                await csv.NextRecordAsync();
                 
-                // Записываем транзакции
-                csv.WriteRecords(transactions);
+                await csv.WriteRecordsAsync(transactions);
             }
             
             Console.WriteLine("Данные блока сохранены в block_data.csv");
