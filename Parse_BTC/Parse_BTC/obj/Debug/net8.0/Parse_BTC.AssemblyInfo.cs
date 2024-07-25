@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Parse_BTC")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+18fdae12232cacdbc210b5495db1bb5d306a9f79")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+10d6d94c3c84d4f982ea0c78dc3557e1da52462d")]
 [assembly: System.Reflection.AssemblyProductAttribute("Parse_BTC")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Parse_BTC")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
